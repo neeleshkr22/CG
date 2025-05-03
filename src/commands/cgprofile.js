@@ -2,7 +2,7 @@ const User = require('../database/userModel');
 const { EmbedBuilder } = require('discord.js');
 
 module.exports = {
-  name: 'cgprofile',
+  name: 'cmprofile',
   description: 'Show user profile',
   async execute(message) {
     try {

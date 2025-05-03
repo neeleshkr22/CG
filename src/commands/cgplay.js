@@ -1,7 +1,7 @@
 const User = require('../database/userModel');
 
 module.exports = {
-  name: 'cgplay',
+  name: 'cmplay',
   description: 'Start a cricket match',
   async execute(message, args) {
     try {

@@ -2,7 +2,7 @@ const User = require('../database/userModel');
 const { EmbedBuilder } = require('discord.js');
 
 module.exports = {
-  name: 'cgbal',
+  name: 'cmbal',
   description: 'Check your balance',
   async execute(message) {
     try {

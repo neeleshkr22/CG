@@ -3,7 +3,7 @@ const User = require('../database/userModel');
 const { EmbedBuilder } = require('discord.js');
 
 module.exports = {
-  name: 'cgdrop',
+  name: 'cmdrop',
   description: 'Drop a random player',
   async execute(message) {
     try {

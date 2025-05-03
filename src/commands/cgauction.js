@@ -3,7 +3,7 @@ const Player = require('../database/playerModel');
 const { EmbedBuilder } = require('discord.js');
 
 module.exports = {
-  name: 'cgauction',
+  name: 'cmauction',
   description: 'Bid in the player auction',
   async execute(message, args) {
     const playerName = args[0];

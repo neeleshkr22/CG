@@ -62,7 +62,7 @@ const mongoose = require('mongoose');
 const fs = require('fs');
 
 // Create the client instance
-const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages] });
+const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
 client.commands = new Collection();
 
 // Load command files from the 'commands' folder

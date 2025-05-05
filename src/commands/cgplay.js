@@ -213,7 +213,7 @@ async function startBallByBall(message, matchState, inningsKey) {
         } else if (outcome < 0.3) {
           result = '⚪ Dot';
         } else if (outcome < 0.6) {
-          result = '➕ 1 Run';
+          result = ' 1 Run';
           innings.score += 1;
         } else if (outcome < 0.85) {
           result = '🏏 FOUR!';

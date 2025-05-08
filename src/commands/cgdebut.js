@@ -1,7 +1,6 @@
-// cmdebut.js - Start a cricket career with a random XI
+// cmdebut.js - Start a cricket career with a random XI (from JSON)
 const User = require('../database/userModel');
-const { getAllPlayers, getRandomPlayer, findPlayerByName } = require('../database/playerModel');
-
+const allPlayers = require('../data/player.json'); // Make sure path is correct
 const { EmbedBuilder } = require('discord.js');
 
 module.exports = {
@@ -15,16 +14,24 @@ module.exports = {
         return message.reply('🛑 You have already made your debut! Use `cmprofile` to see your team.');
       }
 
-      const allPlayers = await Player.find();
       if (allPlayers.length < 11) {
         return message.reply('⚠️ Not enough players in the database to form a team.');
       }
 
-      // Get 11 random players for user's team
+      // Get 11 random players
       const shuffled = allPlayers.sort(() => 0.5 - Math.random());
       const selectedPlayers = shuffled.slice(0, 11);
-      const teamOvr = selectedPlayers.reduce((sum, p) => sum + (p.batting + p.bowling) / 2, 0);
-      const teamValue = selectedPlayers.reduce((sum, p) => sum + p.cardValue, 0);
+
+      const teamOvr = selectedPlayers.reduce((sum, p) => {
+        const bat = typeof p.batting === 'number' ? p.batting : 0;
+        const bowl = typeof p.bowling === 'number' ? p.bowling : 0;
+        return sum + (bat + bowl) / 2;
+      }, 0);
+
+      const teamValue = selectedPlayers.reduce((sum, p) => {
+        const value = typeof p.cardValue === 'number' ? p.cardValue : 0;
+        return sum + value;
+      }, 0);
 
       const newUser = await User.create({
         userId: message.author.id,
@@ -38,12 +45,11 @@ module.exports = {
 
       const embed = new EmbedBuilder()
         .setTitle('🎉 Debut Successful!')
-        .setDescription(`Welcome, **${message.author.username}**!
-You have received your starting XI. You can now use \`cmxi\` to view your squad and \`cmplay\` to start a match!`)
+        .setDescription(`Welcome, **${message.author.username}**!\nYou have received your starting XI. Use \`/cmxi\` to view them or \`/cmplay\` to start a match.`)
         .addFields(
           { name: 'Team OVR', value: teamOvr.toFixed(1), inline: true },
           { name: 'Team Value', value: `${teamValue} CG`, inline: true },
-          { name: 'Players', value: selectedPlayers.map(p => p.name).join(', ') }
+          { name: 'Players', value: selectedPlayers.map(p => p.name || p.Name).join(', ') }
         )
         .setColor('#32CD32');
 

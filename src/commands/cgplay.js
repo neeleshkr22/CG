@@ -187,6 +187,31 @@ async function startBallByBall(message, matchState, inningsKey) {
               new ButtonBuilder().setCustomId(`shot_${s.toLowerCase().replace(/ /g, '_')}`).setLabel(s).setStyle(ButtonStyle.Primary)
             )
           ));
+      const shotCollector = message.channel.createMessageComponentCollector({ componentType: ComponentType.Button, time: 30000 });
+
+      shotCollector.on('collect', async sInt => {
+        if (sInt.user.id !== battingUser.id)
+          return sInt.reply({ content: 'Only the batsman can play.', ephemeral: true });
+
+        const shot = sInt.customId.split('_')[1];
+        const outcome = Math.random();
+        let result;
+
+        if (outcome < 0.1) {
+          result = '🟥 OUT';
+          innings.wickets++;
+        } else if (outcome < 0.3) {
+          result = '⚪ Dot';
+        } else if (outcome < 0.6) {
+          result = ' one Run';
+          innings.score += 1;
+        } else if (outcome < 0.85) {
+          result = '🏏 FOUR!';
+          innings.score += 4;
+        } else {
+          result = '🎉 SIX!';
+          innings.score += 6;
+
         }
 
         await message.channel.send({ content: `${battingUser}, play your shot:`, components: rows });
@@ -227,9 +252,10 @@ async function startBallByBall(message, matchState, inningsKey) {
           }
         });
       }, 2000);
-    });
+    }
   });
 }
+  )
 
 async function handleInningsEnd(message, matchState, inningsKey) {
   const innings = matchState[inningsKey];
@@ -258,4 +284,4 @@ async function handleInningsEnd(message, matchState, inningsKey) {
 
     await setupInnings(message, secondBat, secondBowl, innings.overs, 'secondInnings');
   }
-}
+}})}

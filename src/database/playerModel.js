@@ -1,4 +1,3 @@
-
 const fs = require('fs');
 const path = require('path');
 
@@ -20,7 +19,7 @@ function getRandomPlayer() {
 
 function findPlayerByName(name) {
   const players = loadPlayers();
-  return players.find(p => p.name.toLowerCase() === name.toLowerCase());
+  return players.find((p) => p.name.toLowerCase() === name.toLowerCase());
 }
 
 function getTopPlayers(minOvr = 93) {
@@ -31,6 +30,5 @@ function getTopPlayers(minOvr = 93) {
 module.exports = {
   getAllPlayers,
   getRandomPlayer,
-  findPlayerByName,
-  getTopPlayers,
+  findPlayerByName
 };

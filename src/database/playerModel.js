@@ -23,8 +23,14 @@ function findPlayerByName(name) {
   return players.find(p => p.name.toLowerCase() === name.toLowerCase());
 }
 
+function getTopPlayers(minOvr = 93) {
+  const players = loadPlayers();
+  return players.filter(p => p.OVR && p.OVR > minOvr);
+}
+
 module.exports = {
   getAllPlayers,
   getRandomPlayer,
-  findPlayerByName
+  findPlayerByName,
+  getTopPlayers,
 };

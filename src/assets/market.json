@@ -1,0 +1,72 @@
+[
+  {
+    "_id": "JacquesKallisMain",
+    "Name": "Jacques Kallis",
+    "Card": "https://cdn.discordapp.com/attachments/1296483933386702848/1296498530940227635/JacquesKallisMain.png?ex=671281d9&is=67113059&hm=fc69ea47031559451315a970186493503e38219281ef3139df7694635e9f1892&",
+    "Type": "Legends",
+    "OVR": 98,
+    "BAT": 96,
+    "BOWL": 91,
+    "Role": "ALR",
+    "Price": 4155500,
+    "Country": "🇿🇦",
+    "Style": "Fast",
+    "Trait": "Anchor"
+  },
+  {
+    "_id": "ViratKohliMain",
+    "Name": "Virat Kohli",
+    "Card": "https://media.discordapp.net/attachments/1271070751130124358/1342579057702866954/ViratKohliMain.png",
+    "Type": "Men",
+    "OVR": 96,
+    "BAT": 96,
+    "BOWL": 36,
+    "Role": "BAT",
+    "Price": 3050000,
+    "Country": "🇮🇳",
+    "Style": "Medium",
+    "Trait": "Anchor"
+  },
+  {
+    "_id": "AnilKumbleMain",
+    "Name": "Anil Kumble",
+    "Card": "https://cdn.discordapp.com/attachments/1296483933386702848/1296498583268495381/AnilKumbleMain.png?ex=671281e6&is=67113066&hm=fc488c6cba6cbabefbdcc6d87f0b5e377551dac33c6bcb1581105dfff9b2f889&",
+    "Type": "Legends",
+    "OVR": 96,
+    "BAT": 44,
+    "BOWL": 96,
+    "Role": "BOWL",
+    "Price": 3050000,
+    "Country": "🇮🇳",
+    "Style": "Legspin",
+    "Trait": "Balanced"
+  },
+  {
+    "_id": "MJayawardeneMain",
+    "Name": "M Jayawardene",
+    "Card": "https://cdn.discordapp.com/attachments/1296483933386702848/1296498215398408343/MJayawardeneMain.png?ex=6712818e&is=6711300e&hm=af3b9c9238daa2235196c46a611c4b5f5fbf0608c00d5677943761beb6e1e102&",
+    "Type": "Legends",
+    "OVR": 94,
+    "BAT": 95,
+    "BOWL": 38,
+    "Role": "BAT",
+    "Price": 2195725,
+    "Country": "🇱🇰",
+    "Style": "Medium",
+    "Trait": "Anchor"
+  },
+  {
+    "_id": "RohitSharmaMain",
+    "Name": "Rohit Sharma",
+    "Card": "https://media.discordapp.net/attachments/1271070751130124358/1342579013129994250/RohitSharmaMain.png",
+    "Type": "Men",
+    "OVR": 94,
+    "BAT": 94,
+    "BOWL": 48,
+    "Role": "BAT",
+    "Price": 2110725,
+    "Country": "🇮🇳",
+    "Style": "Offspin",
+    "Trait": "Aggressor"
+  }
+]

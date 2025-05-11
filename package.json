@@ -1,22 +1,20 @@
 {
-  "name": "CG",
+  "name": "cricbot",
   "version": "1.0.0",
-  "description": "",
+  "description": "Cricket Gold Bot",
   "main": "index.js",
   "scripts": {
     "dev": "nodemon index.js",
-    "lint": "exlint lint",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js"
   },
-  "keywords": [],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@10.10.0",
   "dependencies": {
     "discord.js": "^14.16.3",
     "dotenv": "^16.4.5",
     "mongoose": "^8.7.1"
   },
-  "devDependencies": {},
-  "description": ""
+  "devDependencies": {
+    "nodemon": "^3.0.0"
+  }
 }

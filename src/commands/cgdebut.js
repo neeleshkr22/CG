@@ -11,7 +11,7 @@ module.exports = {
       const existingUser = await User.findOne({ userId: message.author.id });
 
       if (existingUser) {
-        return message.reply('🛑 You have already made your debut! Use `cmprofile` to see your team.');
+        return message.reply('🛑 You have already made your debut! Use `cmprofile` to see your team now.');
       }
 
       if (allPlayers.length < 11) {

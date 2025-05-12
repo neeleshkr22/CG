@@ -2,77 +2,69 @@ const User = require('../database/userModel');
 const { getRandomPlayer } = require('../database/playerModel');
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
 
+const DROP_COOLDOWN = 60 * 60 * 1000; // 1 hour
+
 module.exports = {
   name: 'cmdrop',
   description: 'Drop a random player and decide to claim or release',
   async execute(message) {
-    try {
-      const player = getRandomPlayer();
-      if (!player) return message.reply('❌ No players found.');
+    const user = await User.findOne({ userId: message.author.id });
+    if (!user) return message.reply('❌ Use `cmdebut` to start your cricket journey.');
 
-      const user = await User.findOne({ userId: message.author.id });
-      if (!user) return message.reply('❌ You need to use `cmdebut` to start your cricket career.');
+    const now = Date.now();
+    const lastDrop = user.cooldowns?.cgdrop || 0;
 
-      const embed = new EmbedBuilder()
-        .setTitle(`🎁 Player Drop: ${player.Name}`)
-        .setDescription(`A new player has been dropped. What do you want to do?`)
-        .addFields(
-          { name: '🏏 Batting', value: `${player.BAT}`, inline: true },
-          { name: '🎯 Bowling', value: `${player.BOWL}`, inline: true },
-          { name: '💎 Overall', value: `${player.OVR}`, inline: true },
-          { name: '💰 Value', value: `${player.Price.toLocaleString()} CG`, inline: true },
-          { name: '🌎 Country', value: `${player.Country}`, inline: true },
-          { name: '📌 Role', value: `${player.Role}`, inline: true },
-          { name: '✨ Trait', value: `${player.Trait}`, inline: true },
-          { name: '🎮 Style', value: `${player.Style}`, inline: true }
-        )
-        .setImage(player.Card)
-        .setColor('#00CED1')
-        .setFooter({ text: 'Click Claim to add to your team or Release to skip.' });
+    if (now - lastDrop < DROP_COOLDOWN) {
+      const mins = Math.floor((DROP_COOLDOWN - (now - lastDrop)) / 60000);
+      return message.reply(`⏳ Wait **${mins}m** before using \`cmdrop\` again.`);
+    }
 
-      const row = new ActionRowBuilder().addComponents(
-        new ButtonBuilder().setCustomId('claim_player').setLabel('✅ Claim').setStyle(ButtonStyle.Success),
-        new ButtonBuilder().setCustomId('release_player').setLabel('❌ Release').setStyle(ButtonStyle.Danger)
+    const player = getRandomPlayer();
+    if (!player) return message.reply('❌ No players found.');
+
+    const embed = new EmbedBuilder()
+      .setTitle(`🎁 Player Drop: ${player.Name}`)
+      .setImage(player.Card)
+      .setColor('#00CED1')
+      .addFields(
+        { name: '🏏 Batting', value: `${player.BAT}`, inline: true },
+        { name: '🎯 Bowling', value: `${player.BOWL}`, inline: true },
+        { name: '💎 OVR', value: `${player.OVR}`, inline: true },
+        { name: '💰 Value', value: `${player.Price.toLocaleString()} CG`, inline: true },
+        { name: '📌 Role', value: `${player.Role}`, inline: true },
+        { name: '🌍 Country', value: `${player.Country}`, inline: true }
       );
 
-      const sent = await message.channel.send({ embeds: [embed], components: [row] });
+    const row = new ActionRowBuilder().addComponents(
+      new ButtonBuilder().setCustomId('claim').setLabel('✅ Claim').setStyle(ButtonStyle.Success),
+      new ButtonBuilder().setCustomId('release').setLabel('❌ Release').setStyle(ButtonStyle.Danger)
+    );
 
-      const collector = sent.createMessageComponentCollector({ componentType: ComponentType.Button, time: 30000 });
+    const sent = await message.channel.send({ embeds: [embed], components: [row] });
 
-      collector.on('collect', async interaction => {
-        if (interaction.user.id !== message.author.id) {
-          return interaction.reply({ content: 'This drop is not for you.', ephemeral: true });
-        }
+    const collector = sent.createMessageComponentCollector({ componentType: ComponentType.Button, time: 30000 });
 
-        if (interaction.customId === 'claim_player') {
-          user.players.push(player);
-          user.teamOvr += player.OVR;
-          user.teamValue += player.Price;
-          await user.save();
+    collector.on('collect', async interaction => {
+      if (interaction.user.id !== message.author.id)
+        return interaction.reply({ content: '❌ This is not your drop.', ephemeral: true });
 
-          await interaction.update({
-            content: `✅ **${player.Name}** has been added to your team!`,
-            embeds: [],
-            components: []
-          });
-        } else {
-          await interaction.update({
-            content: `❌ You released **${player.Name}**.`,
-            embeds: [],
-            components: []
-          });
-        }
-      });
+      if (interaction.customId === 'claim') {
+        user.players.push(player);
+        user.teamValue += player.Price;
+        user.teamOvr += player.OVR;
+        user.cooldowns = { ...(user.cooldowns || {}), cgdrop: now };
+        await user.save();
 
-      collector.on('end', collected => {
-        if (collected.size === 0) {
-          sent.edit({ content: '⌛ Time expired. Player was not claimed.', components: [] });
-        }
-      });
+        await interaction.update({ content: `✅ **${player.Name}** added to your team!`, components: [], embeds: [] });
+      } else {
+        user.cooldowns = { ...(user.cooldowns || {}), cgdrop: now };
+        await user.save();
+        await interaction.update({ content: `❌ You released **${player.Name}**.`, components: [], embeds: [] });
+      }
+    });
 
-    } catch (err) {
-      console.error('[cmdrop] Error:', err);
-      message.reply('⚠️ An error occurred while dropping a player.');
-    }
+    collector.on('end', collected => {
+      if (collected.size === 0) sent.edit({ content: '⌛ Drop expired.', components: [] });
+    });
   }
 };

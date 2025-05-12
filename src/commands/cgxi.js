@@ -2,12 +2,6 @@
 const User = require('../database/userModel');
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, StringSelectMenuBuilder } = require('discord.js');
 
-const emojiMap = {
-  'India': '🇮🇳', 'Australia': '🇦🇺', 'Pakistan': '🇵🇰', 'West Indies': '🇯🇲',
-  'New Zealand': '🇳🇿', 'England': '🏴', 'South Africa': '🇿🇦', 'Sri Lanka': '🇱🇰',
-  'Bangladesh': '🇧🇩', 'Afghanistan': '🇦🇫', 'Zimbabwe': '🇿🇼', 'Ireland': '🇮🇪'
-};
-
 module.exports = {
   name: 'cmxi',
   description: 'View your playing XI and manage subs',
@@ -18,16 +12,27 @@ module.exports = {
       if (!user.players || user.players.length === 0) return message.reply('⚠️ Your team is empty. Use `cmdrop` or `cmauction` to get players.');
 
       const renderXIEmbed = (players) => {
-        const teamOvr = players.reduce((sum, p) => sum + ((p.OVR ?? ((p.batting + p.bowling) / 2)) || 0), 0) / players.length;
+        const teamOvr = players.reduce((sum, p) => sum + ((p.OVR ?? ((p.BAT + p.BOWL) / 2)) || 0), 0) / players.length;
 
         const formatPlayer = (p) => {
-          const bat = p.BAT ?? p.batting ?? '??';
-          const bowl = p.BOWL ?? p.bowling ?? '??';
-          const ovr = p.OVR ?? Math.round((bat + bowl) / 2);
-          const country = emojiMap[p.Country] || '🌍';
-          const card = p.Rarity === 'Legend' ? '🌟' : p.Rarity === 'Epic' ? '🎖' : '🏅';
-          return `${card} \`${p.Name || p.name || 'Unknown'}\` \`${ovr}\` | \`${bat}\` | \`${bowl}\` ${country}`;
-        };
+  const name = (p.Name || p.name || 'Unknown').padEnd(16);
+  const bat = p.BAT ?? p.batting ?? '??';
+  const bowl = p.BOWL ?? p.bowling ?? '??';
+  const ovr = p.OVR ?? Math.round((bat + bowl) / 2);
+  const country = p.Country || p.country || '🌍';
+  const role = (p.Role || p.role || '').toUpperCase();
+  const rarity = (p.Rarity || '').toLowerCase();
+
+  const card = rarity === 'legend' ? '🌟' : rarity === 'epic' ? '🎖️' : '🏅';
+  const roleIcon = role === 'BAT' ? '🏏' : role === 'BOWL' ? '⚾' : role === 'ALR' ? '🥊' : role === 'WK' ? '🧤' : '❔';
+  const bowlIcon = bowl >= 90 ? '🔥' : '<:cricball:1370820125850075356>';
+
+  const isCaptain = name.toLowerCase().includes('dhoni') ? ' (C)' : '';
+
+  // Final clean single-line layout
+  return `\`${country}|${card}|${roleIcon}| ${name}${isCaptain} ${ovr.toString().padStart(2)}|${bat.toString().padStart(2)}|${bowl.toString().padStart(2)}\` ${bowlIcon}`;
+};
+
 
         const categorize = { Batters: [], WK: [], 'All-Rounders': [], Bowlers: [] };
         for (const p of players) {
@@ -38,22 +43,29 @@ module.exports = {
           else categorize['All-Rounders'].push(p);
         }
 
+        const roleEmojis = {
+          Batters: '🏏',
+          WK: '🧤',
+          'All-Rounders': '🥊',
+          Bowlers: '🎯'
+        };
+
         const lines = [
-          `**${user.teamName || message.author.username}** • **OVR:** \`${teamOvr.toFixed(1)}\``,
-          '`Card | Player | OVR | BAT | BOWL | Country`'
-        ];
+  `**${user.teamName || message.author.username}** 🔸 **OVR: \`${Math.round(teamOvr)}\`**`,
+  '```cntry card role player ovr bat bowl```'
+];
+
+
         for (const [role, list] of Object.entries(categorize)) {
           if (list.length === 0) continue;
-          lines.push(`\n__**${role}**__ ${role === 'WK' ? '🧤' : role === 'Bowlers' ? '🔴' : '<:cricbat:1370819489150537868>'}`);
+          lines.push(`\n__**${role.toUpperCase()} ${roleEmojis[role]}**__`);
           lines.push(...list.map(formatPlayer));
         }
 
         return new EmbedBuilder()
-          .setTitle('🏏 Playing XI')
           .setDescription(lines.join('\n'))
-          .setFooter({ text: `${message.author.username} • Playing XI` })
-          .setColor('#1E90FF')
-          .setThumbnail(message.author.displayAvatarURL({ dynamic: true }));
+          .setFooter({ text: `${message.author.username} • Playing XI`, iconURL: message.author.displayAvatarURL({ dynamic: true }) })
+          .setColor('#2F3136');
       };
 
       const xi = user.players.slice(0, 11);
@@ -78,12 +90,12 @@ module.exports = {
             .setTitle('📋 Substitutes')
             .setDescription(subs.map((p, j) => `**${j + 12}.** ${p.Name || p.name}`).join('\n'))
             .setColor('#FFA500');
-          return i.reply({ embeds: [subEmbed] });
+          return i.reply({ embeds: [subEmbed], ephemeral: true });
         }
 
         if (i.customId === 'autobuild_btn') {
           const top11 = [...user.players]
-            .sort((a, b) => (b.OVR ?? ((b.batting + b.bowling) / 2)) - (a.OVR ?? ((a.batting + a.bowling) / 2)))
+            .sort((a, b) => (b.OVR ?? ((b.BAT + b.BOWL) / 2)) - (a.OVR ?? ((a.BAT + a.BOWL) / 2)))
             .slice(0, 11);
           const rest = user.players.filter(p => !top11.includes(p));
           user.players = [...top11, ...rest];

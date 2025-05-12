@@ -7,6 +7,10 @@ const userSchema = new mongoose.Schema({
   teamValue: { type: Number, default: 0 },
   teamOvr: { type: Number, default: 0 },
   players: { type: Array, default: [] },
+  cooldowns: {
+  type: Object,
+  default: {}
+},
 
   matchesPlayed: { type: Number, default: 0 },
   matchesWon: { type: Number, default: 0 },

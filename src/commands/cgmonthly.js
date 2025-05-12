@@ -20,7 +20,8 @@ module.exports = {
 
       const now = Date.now();
       if (!user.cooldowns) user.cooldowns = {};
-      const lastClaim = user.cooldowns.cgmonthly || 0;
+
+      const lastClaim = user.cooldowns.cmmonthly || 0;
       const timeLeft = lastClaim + MONTHLY_COOLDOWN - now;
 
       if (timeLeft > 0) {
@@ -35,8 +36,13 @@ module.exports = {
       user.players.push(player);
       user.teamOvr += player.OVR;
       user.teamValue += player.Price;
-      user.cooldowns.cgmonthly = now;
+      // user.cooldowns.cmmonthly = now;
+      user.cooldowns = {
+  ...user.cooldowns, 
+  cmmonthly: now     
+};
 
+      user.markModified('cooldowns'); 
       await user.save();
 
       const embed = new EmbedBuilder()

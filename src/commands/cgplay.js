@@ -9,6 +9,8 @@ const stadiums = ['Lords', 'MCG', 'Wankhede'];
 const ballSpeeds = ['Inswing', 'Outswing', 'Slower', 'Quick'];
 const ballLines = ['Bouncer', 'Good Length', 'Full', 'Yorker'];
 const shotTypes = ['Pull', 'Scoop', 'Flick', 'Drive', 'Cut', 'Defend', 'Sweep', 'Switch Hit', 'Loft'];
+const Temperature = ['34°C', '30°C', '28°C', '25°C'];
+const Umpire = ['Nitin Menon', 'Aleem Dar', 'Kumar Dharmasena', 'Marais Erasmus'];
 
 module.exports = {
   name: 'cmplay',
@@ -30,19 +32,24 @@ module.exports = {
 
     const pitch = pitchTypes[Math.floor(Math.random() * pitchTypes.length)];
     const weather = weatherTypes[Math.floor(Math.random() * weatherTypes.length)];
+    const temperature = Temperature[Math.floor(Math.random() * Temperature.length)];
+    const umpire = Umpire[Math.floor(Math.random() * Umpire.length)];
     const stadium = stadiums[Math.floor(Math.random() * stadiums.length)];
 
     const matchEmbed = new EmbedBuilder()
-      .setTitle('🏏 Match Invite')
-      .setDescription(`**${message.author.username}** vs **${opponent.username}**
-${overs}-Over Match`)
+      .setTitle('Cric Masters Match 🏏')
+      .setDescription(`**${message.author.username}** vs **...........**`)
       .addFields(
-        { name: '🏟️ Stadium', value: stadium, inline: true },
+        { name: '🧱 Pitch', value: pitch, inline: true },
         { name: '🌤️ Weather', value: weather, inline: true },
-        { name: '🧱 Pitch', value: pitch, inline: true }
+        { name: '🌡️ Temperature', value: temperature, inline: true },
+        { name: '🧑‍⚖️ Umpire', value: umpire, inline: true },
+        { name: '🏟️ Stadium', value: stadium, inline: true },
       )
-      .setColor('#1D9BF0')
-      .setFooter({ text: 'Waiting for opponent to accept...' });
+      .setColor('#FF0000')
+      .setImage('attachment://stadium.gif')
+      .setFooter({ text: '❌ Opponent unavailable' });
+
 
     const row = new ActionRowBuilder().addComponents(
       new ButtonBuilder().setCustomId('accept_match').setLabel('✅ Accept Match').setStyle(ButtonStyle.Success)
@@ -187,101 +194,103 @@ async function startBallByBall(message, matchState, inningsKey) {
               new ButtonBuilder().setCustomId(`shot_${s.toLowerCase().replace(/ /g, '_')}`).setLabel(s).setStyle(ButtonStyle.Primary)
             )
           ));
-      const shotCollector = message.channel.createMessageComponentCollector({ componentType: ComponentType.Button, time: 30000 });
+          const shotCollector = message.channel.createMessageComponentCollector({ componentType: ComponentType.Button, time: 30000 });
 
-      shotCollector.on('collect', async sInt => {
-        if (sInt.user.id !== battingUser.id)
-          return sInt.reply({ content: 'Only the batsman can play.', ephemeral: true });
+          shotCollector.on('collect', async sInt => {
+            if (sInt.user.id !== battingUser.id)
+              return sInt.reply({ content: 'Only the batsman can play.', ephemeral: true });
 
-        const shot = sInt.customId.split('_')[1];
-        const outcome = Math.random();
+            const shot = sInt.customId.split('_')[1];
+            const outcome = Math.random();
+            let result;
+
+            if (outcome < 0.1) {
+              result = '🟥 OUT';
+              innings.wickets++;
+            } else if (outcome < 0.3) {
+              result = '⚪ Dot';
+            } else if (outcome < 0.6) {
+              result = ' one Run';
+              innings.score += 1;
+            } else if (outcome < 0.85) {
+              result = '🏏 FOUR!';
+              innings.score += 4;
+            } else {
+              result = '🎉 SIX!';
+              innings.score += 6;
+
+            }
+
+            await message.channel.send({ content: `${battingUser}, play your shot:`, components: rows });
+
+            const shotCollector = message.channel.createMessageComponentCollector({ componentType: ComponentType.Button, time: 30000 });
+
+            shotCollector.on('collect', async sInt => {
+              if (sInt.user.id !== battingUser.id) return sInt.reply({ content: '❌ Not your shot.', ephemeral: true });
+
+              const outcome = Math.random();
+              let result;
+
+              if (outcome < 0.1) result = '🟥 OUT', innings.wickets++;
+              else if (outcome < 0.3) result = '⚪ Dot';
+              else if (outcome < 0.6) result = '➕ 1 Run', innings.score += 1;
+              else if (outcome < 0.85) result = '🏏 FOUR!', innings.score += 4;
+              else result = '🎉 SIX!', innings.score += 6;
+
+              innings.balls++;
+              innings.runLog.push(result);
+
+              await sInt.deferUpdate();
+              await message.channel.send({
+                embeds: [new EmbedBuilder()
+                  .setTitle('📊 Scorecard')
+                  .addFields(
+                    { name: '🏏 Score', value: `${innings.score}/${innings.wickets}`, inline: true },
+                    { name: '⏱ Overs', value: `${Math.floor(innings.balls / 6)}.${innings.balls % 6}`, inline: true },
+                    { name: '📈 Run Tracker', value: innings.runLog.slice(-6).join(' | ') }
+                  )
+                  .setColor('#32CD32')]
+              });
+
+              if (innings.balls >= innings.overs * 6 || innings.wickets >= 10 || (inningsKey === 'secondInnings' && innings.score >= matchState.firstInnings.score + 1)) {
+                await handleInningsEnd(message, matchState, inningsKey);
+              } else {
+                await startBallByBall(message, matchState, inningsKey);
+              }
+            });
+          }, 2000);
+        }
+      });
+    }
+    )
+
+    async function handleInningsEnd(message, matchState, inningsKey) {
+      const innings = matchState[inningsKey];
+
+      if (inningsKey === 'secondInnings') {
+        const first = matchState.firstInnings;
+        const second = matchState.secondInnings;
         let result;
 
-        if (outcome < 0.1) {
-          result = '🟥 OUT';
-          innings.wickets++;
-        } else if (outcome < 0.3) {
-          result = '⚪ Dot';
-        } else if (outcome < 0.6) {
-          result = ' one Run';
-          innings.score += 1;
-        } else if (outcome < 0.85) {
-          result = '🏏 FOUR!';
-          innings.score += 4;
-        } else {
-          result = '🎉 SIX!';
-          innings.score += 6;
+        if (second.score > first.score) result = `🎉 ${second.battingUser.username} wins by ${10 - second.wickets} wickets!`;
+        else if (second.score < first.score) result = `🏆 ${first.battingUser.username} wins by ${first.score - second.score} runs!`;
+        else result = `🤝 It's a tie!`;
 
-        }
+        await message.channel.send(`📢 **Match Result:** ${result}`);
+      } else {
+        const secondBat = innings.bowlingUser;
+        const secondBowl = innings.battingUser;
 
-        await message.channel.send({ content: `${battingUser}, play your shot:`, components: rows });
+        matchState.secondInnings = {
+          score: 0, wickets: 0, balls: 0, overs: innings.overs,
+          battingUser: secondBat,
+          bowlingUser: secondBowl,
+          openers: [], bowler: '', runLog: [],
+          target: innings.score + 1
+        };
 
-        const shotCollector = message.channel.createMessageComponentCollector({ componentType: ComponentType.Button, time: 30000 });
-
-        shotCollector.on('collect', async sInt => {
-          if (sInt.user.id !== battingUser.id) return sInt.reply({ content: '❌ Not your shot.', ephemeral: true });
-
-          const outcome = Math.random();
-          let result;
-
-          if (outcome < 0.1) result = '🟥 OUT', innings.wickets++;
-          else if (outcome < 0.3) result = '⚪ Dot';
-          else if (outcome < 0.6) result = '➕ 1 Run', innings.score += 1;
-          else if (outcome < 0.85) result = '🏏 FOUR!', innings.score += 4;
-          else result = '🎉 SIX!', innings.score += 6;
-
-          innings.balls++;
-          innings.runLog.push(result);
-
-          await sInt.deferUpdate();
-          await message.channel.send({
-            embeds: [new EmbedBuilder()
-              .setTitle('📊 Scorecard')
-              .addFields(
-                { name: '🏏 Score', value: `${innings.score}/${innings.wickets}`, inline: true },
-                { name: '⏱ Overs', value: `${Math.floor(innings.balls / 6)}.${innings.balls % 6}`, inline: true },
-                { name: '📈 Run Tracker', value: innings.runLog.slice(-6).join(' | ') }
-              )
-              .setColor('#32CD32')]
-          });
-
-          if (innings.balls >= innings.overs * 6 || innings.wickets >= 10 || (inningsKey === 'secondInnings' && innings.score >= matchState.firstInnings.score + 1)) {
-            await handleInningsEnd(message, matchState, inningsKey);
-          } else {
-            await startBallByBall(message, matchState, inningsKey);
-          }
-        });
-      }, 2000);
+        await setupInnings(message, secondBat, secondBowl, innings.overs, 'secondInnings');
+      }
     }
-  });
+  })
 }
-  )
-
-async function handleInningsEnd(message, matchState, inningsKey) {
-  const innings = matchState[inningsKey];
-
-  if (inningsKey === 'secondInnings') {
-    const first = matchState.firstInnings;
-    const second = matchState.secondInnings;
-    let result;
-
-    if (second.score > first.score) result = `🎉 ${second.battingUser.username} wins by ${10 - second.wickets} wickets!`;
-    else if (second.score < first.score) result = `🏆 ${first.battingUser.username} wins by ${first.score - second.score} runs!`;
-    else result = `🤝 It's a tie!`;
-
-    await message.channel.send(`📢 **Match Result:** ${result}`);
-  } else {
-    const secondBat = innings.bowlingUser;
-    const secondBowl = innings.battingUser;
-
-    matchState.secondInnings = {
-      score: 0, wickets: 0, balls: 0, overs: innings.overs,
-      battingUser: secondBat,
-      bowlingUser: secondBowl,
-      openers: [], bowler: '', runLog: [],
-      target: innings.score + 1
-    };
-
-    await setupInnings(message, secondBat, secondBowl, innings.overs, 'secondInnings');
-  }
-}})}

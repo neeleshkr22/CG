@@ -5,7 +5,7 @@ const DAILY_REWARD = 2500;
 const DAILY_COOLDOWN = 12 * 60 * 60 * 1000;
 
 module.exports = {
-  name: 'cmdaily',
+  name: 'daily',
   description: 'Claim your daily CG',
   async execute(message) {
     const user = await User.findOne({ userId: message.author.id });

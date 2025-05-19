@@ -2,7 +2,7 @@ const User = require('../database/userModel');
 const Auction = require('../database/auctionModel');
 
 module.exports = {
-  name: 'cmbid',
+  name: 'bid',
   description: 'Place a bid in an auction',
   async execute(message, args) {
     const name = args[0];

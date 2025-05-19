@@ -5,7 +5,7 @@ const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentTyp
 const DROP_COOLDOWN = 60 * 60 * 1000; // 1 hour
 
 module.exports = {
-  name: 'cmdrop',
+  name: 'drop',
   description: 'Drop a random player and decide to claim or release',
   async execute(message) {
     const user = await User.findOne({ userId: message.author.id });

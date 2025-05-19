@@ -3,7 +3,7 @@ const User = require('../database/userModel');
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
 
 module.exports = {
-  name: 'cmsell',
+  name: 'sell',
   description: 'Sell players by name or number range',
   async execute(message, args) {
     try {

@@ -11,7 +11,7 @@ const User = require('../database/userModel');
 const playerData = require('../data/player.json');
 
 module.exports = {
-  name: 'cmbuy',
+  name: 'buy',
   description: 'Buy a player card for your team',
   async execute(message, args) {
     const query = args.join(' ').toLowerCase();

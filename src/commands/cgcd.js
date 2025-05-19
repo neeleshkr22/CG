@@ -2,15 +2,15 @@ const User = require('../database/userModel');
 const { EmbedBuilder } = require('discord.js');
 
 const cooldowns = {
-  cgdrop: 60 * 60 * 1000,                  // 1 hour
-  cgdaily: 12 * 60 * 60 * 1000,            // 12 hours
-  cgweekly: 7 * 24 * 60 * 60 * 1000,       // 7 days
-  cmmonthly: 30 * 24 * 60 * 60 * 1000      // 30 days
+  cgdrop: 60 * 60 * 1000,                  
+  cgdaily: 12 * 60 * 60 * 1000,            
+  cgweekly: 7 * 24 * 60 * 60 * 1000,       
+  cmmonthly: 30 * 24 * 60 * 60 * 1000      
 };
 
 
 module.exports = {
-  name: 'cmcd',
+  name: 'cd',
   description: 'Check your cooldowns',
   async execute(message) {
     const user = await User.findOne({ userId: message.author.id });

@@ -13,7 +13,7 @@ const Temperature = ['34°C', '30°C', '28°C', '25°C'];
 const Umpire = ['Nitin Menon', 'Aleem Dar', 'Kumar Dharmasena', 'Marais Erasmus'];
 
 module.exports = {
-  name: 'cmplay',
+  name: 'play',
   description: 'Start a full cricket match against another user',
   async execute(message, args) {
     const overs = parseInt(args[0]);

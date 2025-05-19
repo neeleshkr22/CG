@@ -4,7 +4,7 @@ const { EmbedBuilder } = require('discord.js');
 const { v4: uuidv4 } = require('uuid'); // to generate unique IDs
 
 module.exports = {
-  name: 'cmauction',
+  name: 'auction',
   description: 'Start or view ongoing player auctions',
   async execute(message, args) {
     const user = await User.findOne({ userId: message.author.id });

@@ -2,7 +2,7 @@
 const { EmbedBuilder } = require('discord.js');
 
 module.exports = {
-  name: 'cmhelp',
+  name: 'help',
   description: 'Lists all available commands with descriptions, grouped by category',
   execute(message) {
     const commands = message.client.commands;
@@ -34,7 +34,7 @@ module.exports = {
     });
 
     const embed = new EmbedBuilder()
-      .setTitle('📘 Cricket Majnu Help Menu')
+      .setTitle('📘 Cric Masters Help Menu')
       .setDescription('Commands grouped by category:')
       .setColor('#1E90FF')
       .addFields(

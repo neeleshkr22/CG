@@ -8,7 +8,7 @@ const marketPath = path.join(__dirname, '../assets/market.json');
 const marketImagePath = 'attachment://daily_market_5players.png';
 
 module.exports = {
-  name: 'cmmarket',
+  name: 'market',
   description: 'View today\'s player market and buy cards',
   async execute(message) {
     try {

@@ -4,7 +4,7 @@ const allPlayers = require('../data/player.json'); // Make sure path is correct
 const { EmbedBuilder } = require('discord.js');
 
 module.exports = {
-  name: 'cmdebut',
+  name: 'debut',
   description: 'Begin your cricket career and get your starting XI!',
   async execute(message) {
     try {

@@ -11,7 +11,7 @@ function getHighOvrPlayer() {
 }
 
 module.exports = {
-  name: 'cmmonthly',
+  name: 'monthly',
   description: 'Claim a monthly player with guaranteed high OVR',
   async execute(message) {
     try {
